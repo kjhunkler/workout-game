@@ -8,7 +8,12 @@ self.onmessage = async ({ data }) => {
         type: "progress",
         message: "Loading the camera WebAssembly runtime.",
       });
-      const files = await FilesetResolver.forVisionTasks(`${data.base}wasm`);
+      // Module workers cannot use importScripts, so MediaPipe falls back to
+      // import(). Only the ES module loader sets globalThis.ModuleFactory.
+      const files = await FilesetResolver.forVisionTasks(
+        `${data.base}wasm`,
+        true,
+      );
       self.postMessage({
         type: "progress",
         message: "Loading the pose model and initializing tracking.",
