@@ -1683,3 +1683,15 @@ dialog li {
     font-size: 13px;
   }
 }
+/* Games occupy the viewport; the menu exposes setup and other adventures. */
+body.immersive {margin:0;overflow:hidden;background:#020411}
+.immersive .game-stage {position:fixed;inset:0;width:100vw;height:100dvh;max-height:none;border:0;border-radius:0;z-index:10}
+.immersive #scene {width:100%;height:100%;touch-action:none}
+.immersive .stage-top,.immersive .scene-intro,.immersive .scene-sticker,.immersive .scene-bottom,.immersive .hud,.immersive .cue {display:none!important}
+.space-tools {position:fixed;right:18px;top:18px;display:flex;gap:10px;z-index:30}
+.space-tools button {background:#242345;color:white;border:1px solid #807ca8;border-radius:50%;width:48px;height:48px;font-size:24px;cursor:pointer}
+.immersive .camera-preview {bottom:18px;right:18px;opacity:.8}
+body:not(.immersive) .game-stage {min-height:70vh}
+.trail-playing .game-stage {position:fixed;inset:0;width:100vw;height:100dvh;max-height:none;border-radius:0;z-index:10}
+.trail-playing .touch-controls {position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:20}
+.trail-playing .space-tools {display:none}

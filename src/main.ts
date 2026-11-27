@@ -1,3 +1,4 @@
+import { SpaceRide } from "./space";
 import "@fontsource/outfit/latin-600.css";
 import "@fontsource/outfit/latin-700.css";
 import "@fontsource/dm-sans/latin-400.css";
@@ -105,6 +106,23 @@ $("app").innerHTML = `
 </main>
 <dialog id="help"><button class="dialog-close" id="close-help" aria-label="Close instructions">×</button><p class="eyebrow">WELCOME TO THE CLUB</p><h2>Make a little room.<br>Make some big moves.</h2><p>Choose your players and colors, then connect your camera. Stand side by side with your whole body visible and a little space around you.</p><ol><li><strong>Find your spot.</strong> The crew is assigned from left to right in the mirrored camera preview. Stay in that order.</li><li><strong>Stand tall and still.</strong> A short calibration learns each player’s standing position.</li><li><strong>Follow the trail.</strong> Jump over logs, duck under arches, and step away from rocks. Every clear earns 100 points. Everyone plays the whole minute!</li></ol><p class="help-tip">Clear the floor and keep enough space to move without bumping into each other. Run in place if you like. The trail moves automatically.</p><h3>Playing with buttons?</h3><p>Avery uses W A S D. Cameron uses the arrow keys. Player 3 uses I J K L. Player 4 uses T F G H. Up jumps, down ducks, and left or right dodges. On a touch screen, choose a player above the buttons.</p><p>Camera tracking works best in good light with every player’s feet visible. Video is processed on this device.</p></dialog>
 <dialog id="install-help"><button class="dialog-close" id="close-install" aria-label="Close install help">×</button><p class="eyebrow">TAKE YOUR BLOBS WITH YOU</p><h2>A playground on your home screen.</h2><p>On iPhone or iPad, open this page in Safari, tap Share, then <strong>Add to Home Screen</strong>.</p><p>On Android or desktop, use your browser’s <strong>Install app</strong> or <strong>Add to Home Screen</strong> menu.</p><p id="install-offline">Keep the app open until “Ready for offline play” appears to save the game and camera model.</p></dialog>`;
+let space = true;
+const ride = new SpaceRide($("scene"));
+document.body.classList.add('immersive');
+const spaceTools = document.createElement('div');
+spaceTools.className='space-tools';
+spaceTools.innerHTML='<button id="space-camera" aria-label="Connect camera">📷</button><button id="space-menu" aria-label="Choose game">☰</button><button id="space-full" aria-label="Fullscreen">⛶</button>';
+document.body.append(spaceTools);
+$("space-camera").onclick=()=>{phase='lobby';void connectCamera();};
+$("space-menu").onclick=()=>{space=!space;document.body.classList.toggle('immersive',space);if(!space)backToLobby();else {$("overlay").hidden=true;hideIntro();}};
+$("space-full").onclick=()=>void document.documentElement.requestFullscreen?.().catch(()=>{});
+document.addEventListener('pointerdown',()=>{if(space)void document.documentElement.requestFullscreen?.().catch(()=>{});},{once:true});
+const scene=$<HTMLCanvasElement>('scene');
+scene.addEventListener('pointerdown',e=>{if(space){scene.setPointerCapture(e.pointerId);ride.pointer={x:e.offsetX/scene.clientWidth,y:e.offsetY/scene.clientHeight};}});
+scene.addEventListener('pointermove',e=>{if(ride.pointer)ride.pointer={x:e.offsetX/scene.clientWidth,y:e.offsetY/scene.clientHeight};});
+for(const event of ['pointerup','pointercancel'])scene.addEventListener(event,()=>ride.pointer=undefined);
+window.addEventListener('keydown',e=>{if(space && e.code==='Space'){e.preventDefault();ride.pointer={x:.5,y:.15};}});
+window.addEventListener('keyup',e=>{if(e.code==='Space')ride.pointer=undefined;});
 const renderer = new Renderer($("scene"));
 const cameraDiagnostics = new CameraDiagnostics();
 const cameraHelp = new CameraHelp(cameraDiagnostics, {
@@ -193,6 +211,7 @@ function startRound() {
     notice("Let’s find every player and calibrate first.");
     return;
   }
+  document.body.classList.add("trail-playing");
   run = new Run(GAMES[0], active());
   run.onClear = playTone;
   $("time").textContent = String(run.definition.duration);
@@ -248,6 +267,7 @@ function pause(reason = "Take a breather.") {
   $("back-lobby").onclick = backToLobby;
 }
 function backToLobby() {
+  document.body.classList.remove("trail-playing");
   phase = "lobby";
   run = undefined;
   pressed.clear();
@@ -349,6 +369,7 @@ function drawJoints(poses: Pose[]) {
 }
 function onPoses(poses: Pose[]) {
   lastPoseAt = performance.now();
+  if(space){ride.accept(poses);drawJoints(poses);return;}
   const visible = poses
     .filter(isVisible)
     .sort((a, b) => measure(a).x - measure(b).x);
@@ -438,6 +459,7 @@ function onPoses(poses: Pose[]) {
   }
 }
 function calibrate() {
+  if(space){calibrated=false;calibrating=false;$("overlay").hidden=true;hideIntro();return;}
   resetCalibration();
   calibrating = true;
   hideIntro();
@@ -699,7 +721,8 @@ function frame(now: number) {
     }
     if (run.finished) finish();
   }
-  renderer.draw(active(), motions, now / 1000, run);
+  if(space) ride.draw(delta, players.map(p=>p.color));
+  else renderer.draw(active(), motions, now / 1000, run);
   requestAnimationFrame(frame);
 }
 renderPlayers();

@@ -59,3 +59,14 @@ Push completed changes directly to `main`, following `AGENTS.md`. `.github/workf
 ## Model and runtime
 
 The bundled `public/models/pose_landmarker_lite.task` is Google's MediaPipe Pose Landmarker Lite model, float16 version 1, downloaded from https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task. MediaPipe Tasks Vision and the model are provided under Apache-2.0. The dependency includes its license. See https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker for model documentation. Fonts are Outfit and DM Sans, distributed by Fontsource with their SIL Open Font Licenses.
+
+Space Rollercoaster opens immediately and fills the viewport. Tap 📷 to enable
+local camera tracking, or hold on the scene to aim and charge (Space fires upward
+with a keyboard). Hold either arm straight for one second: the ring fills, then a
+laser fires along the dotted aim line. It repeats while held. Shoulders, elbows,
+and wrists must be visible; legs are not required. Walk in or out without a
+roster or calibration. The detector is configured for up to 12 simultaneous
+poses; lighting, occlusion, and device speed affect the practical limit.
+The menu switches to Trail Dash setup and back to space. True browser fullscreen
+requires a user gesture and is requested on the first tap; viewport filling is
+immediate. Camera permission still requires approval by the browser.

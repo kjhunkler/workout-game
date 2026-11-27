@@ -223,7 +223,7 @@ export class Tracker {
           delegate: "CPU",
         },
         runningMode: "VIDEO",
-        numPoses: 4,
+        numPoses: 12,
         minPoseDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5,
         minPosePresenceConfidence: 0.5,
