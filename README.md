@@ -10,6 +10,16 @@ Connect a camera and stand side by side, with your feet visible. Players are ass
 
 Keyboard controls are W/A/S/D for Avery, arrow keys for Cameron, I/J/K/L for Player 3, and T/F/G/H for Player 4. Up jumps, down ducks, and left/right dodges. Touch controls let you select the player they operate.
 
+## Camera troubleshooting on iPad
+
+Open **Camera help & diagnostics** below the camera button. Start with **Test camera only**, which opens a live preview without loading joint tracking. Then use **Try joint tracking** to exercise the complete camera and model pipeline.
+
+The panel shows camera access, video playback, model loading, tracking speed, and detected versus fully visible people. It retains the original error name and message. Choose the front or rear camera, lower the camera resolution, or select **Compatibility mode** to run tracking on the main thread using the video element directly. Compatibility mode can be slower but avoids worker frame transfer and worker canvas requirements.
+
+Use **Check camera downloads** to check the local model and WASM assets, and **Check for app updates** to look for a pending PWA update. **Copy troubleshooting report** includes the app build, browser information, technical camera status, and the last 80 diagnostic events. Reports stay in the current page session until copied. They contain no images, joint coordinates, or camera device IDs. If copying is blocked, the panel shows selectable report text.
+
+On an older installed version, reopen the app while online, wait for **New playground update · reload**, and tap it to load these tools. The camera preview is visible before playback begins. Permission, video, model initialization, and stalled tracking have bounded waits with recoverable errors. The camera stops when a test is closed or cancelled.
+
 ## Development
 
 Requires Node.js 22 or newer.

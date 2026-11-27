@@ -15,6 +15,12 @@ import {
 } from "./types";
 import { interpret, isVisible, matchPoses, measure } from "./motion";
 import { Tracker } from "./tracker";
+import {
+  CameraDiagnostics,
+  CameraFailure,
+  cameraAdvice,
+} from "./camera-diagnostics";
+import { CameraHelp } from "./camera-help";
 import { Run } from "./game";
 import { Renderer } from "./renderer";
 
@@ -91,8 +97,8 @@ $("app").innerHTML = `
 <main>
 <div class="page-intro"><div><p class="eyebrow">A LITTLE MOVEMENT. A LOT OF PLAY.</p><h1>Your living room.<br class="mobile-break"> Our playground.</h1></div><div class="club-note"><span class="tiny-spark">✳</span> Made for moving<br>together.</div></div>
 <div class="playground">
-<aside class="setup"><div class="section-title"><h2>The crew</h2><span id="player-count">2 players</span></div><p class="muted">Pick a blob. Make it yours.</p><div id="players"></div><button id="add-player" class="add-player">＋ Add a friend</button><div class="setup-divider"></div><div class="section-title"><h2>Today’s adventure</h2><span class="tiny-spark">✳</span></div><div class="game-choice"><span class="game-art"><i></i><i></i><i></i></span><div><strong>Trail Dash</strong><span>Jump, duck & dodge</span></div><span class="choice-check">✓</span></div><div class="game-meta"><span>60-second rounds</span><span>1–4 players</span></div><div class="camera-status" id="camera-status"><span class="camera-icon"></span><p id="camera-label">Your body is the controller.<small>Connect a camera to get moving.</small></p></div><button id="camera" class="primary-button">Let’s connect the camera <span aria-hidden="true">◉</span></button><button id="manual" class="text-button">Play with buttons</button><p class="privacy">Camera video stays on your device.</p></aside>
-<section class="game-stage" aria-label="Trail Dash game"><div class="stage-top"><span class="game-tag"><span class="tiny-spark">✳</span> TRAIL DASH</span><div class="stage-tools"><span id="mode-label">MOVE • PLAY • REPEAT</span><button id="pause" hidden aria-label="Pause game">Ⅱ</button><button id="fullscreen" aria-label="Toggle full screen">⛶</button></div></div><canvas id="scene" aria-label="Avery and Cameron’s blobs on a pastel running trail"></canvas><div class="scene-intro" id="scene-intro"><h2>Big moves.<br>Little blobs.</h2><p>A happy little race for your whole body.</p></div><div class="scene-sticker" id="sticker"><span>GOOD TIMES</span><strong>ahead!</strong><span>JUST ADD YOU</span></div><div class="hud" id="hud" hidden><div id="scores"></div><div class="time"><strong id="time">60</strong><span>seconds</span></div></div><div class="cue" id="cue" hidden></div><div class="scene-bottom" id="scene-bottom"><span><i class="status-dot"></i>Ready when you are</span><span>Room for everyone. Space to move.</span></div><div class="overlay" id="overlay" hidden><div class="overlay-card" id="overlay-content"></div></div><div class="camera-preview" id="camera-preview" hidden><video id="video" muted playsinline></video><canvas id="joints"></canvas><span id="tracking-label">Finding the crew…</span><button id="camera-stop" aria-label="Turn camera off">×</button></div></section>
+<aside class="setup"><div class="section-title"><h2>The crew</h2><span id="player-count">2 players</span></div><p class="muted">Pick a blob. Make it yours.</p><div id="players"></div><button id="add-player" class="add-player">＋ Add a friend</button><div class="setup-divider"></div><div class="section-title"><h2>Today’s adventure</h2><span class="tiny-spark">✳</span></div><div class="game-choice"><span class="game-art"><i></i><i></i><i></i></span><div><strong>Trail Dash</strong><span>Jump, duck & dodge</span></div><span class="choice-check">✓</span></div><div class="game-meta"><span>60-second rounds</span><span>1–4 players</span></div><div class="camera-status" id="camera-status"><span class="camera-icon"></span><p id="camera-label">Your body is the controller.<small>Connect a camera to get moving.</small></p></div><button id="camera" class="primary-button">Let’s connect the camera <span aria-hidden="true">◉</span></button><button id="manual" class="text-button">Play with buttons</button><button id="camera-help-open" class="text-button">Camera help & diagnostics</button><p class="privacy">Camera video stays on your device.</p></aside>
+<section class="game-stage" aria-label="Trail Dash game"><div class="stage-top"><span class="game-tag"><span class="tiny-spark">✳</span> TRAIL DASH</span><div class="stage-tools"><span id="mode-label">MOVE • PLAY • REPEAT</span><button id="pause" hidden aria-label="Pause game">Ⅱ</button><button id="fullscreen" aria-label="Toggle full screen">⛶</button></div></div><canvas id="scene" aria-label="Avery and Cameron’s blobs on a pastel running trail"></canvas><div class="scene-intro" id="scene-intro"><h2>Big moves.<br>Little blobs.</h2><p>A happy little race for your whole body.</p></div><div class="scene-sticker" id="sticker"><span>GOOD TIMES</span><strong>ahead!</strong><span>JUST ADD YOU</span></div><div class="hud" id="hud" hidden><div id="scores"></div><div class="time"><strong id="time">60</strong><span>seconds</span></div></div><div class="cue" id="cue" hidden></div><div class="scene-bottom" id="scene-bottom"><span><i class="status-dot"></i>Ready when you are</span><span>Room for everyone. Space to move.</span></div><div class="overlay" id="overlay" hidden><div class="overlay-card" id="overlay-content"></div></div><div class="camera-preview" id="camera-preview" hidden><video id="video" autoplay muted playsinline></video><canvas id="joints"></canvas><span id="tracking-label">Finding the crew…</span><button id="camera-stop" aria-label="Turn camera off">×</button></div></section>
 </div>
 <div class="bottom-row"><div class="motion-guide"><span class="guide-label">THREE LITTLE MOVES</span><div><span class="motion-icon jump-icon">↟</span><span><strong>Jump up</strong><small>Over the logs</small></span></div><div><span class="motion-icon duck-icon">⌄</span><span><strong>Duck down</strong><small>Under the arches</small></span></div><div><span class="motion-icon dodge-icon">↔</span><span><strong>Step sideways</strong><small>Around the rocks</small></span></div></div><p class="footer-note">Happy bodies. Happy blobs.<span id="offline-status">A little playground, wherever you are.</span></p></div>
 <div class="touch-controls" id="touch-controls" hidden><label>Control <select id="touch-player"></select></label><button data-action="left" aria-label="Move left">←</button><button data-action="jump">Jump</button><button data-action="duck">Duck</button><button data-action="right" aria-label="Move right">→</button></div><p id="notice" role="status" aria-live="polite"></p>
@@ -100,6 +106,16 @@ $("app").innerHTML = `
 <dialog id="help"><button class="dialog-close" id="close-help" aria-label="Close instructions">×</button><p class="eyebrow">WELCOME TO THE CLUB</p><h2>Make a little room.<br>Make some big moves.</h2><p>Choose your players and colors, then connect your camera. Stand side by side with your whole body visible and a little space around you.</p><ol><li><strong>Find your spot.</strong> The crew is assigned from left to right in the mirrored camera preview. Stay in that order.</li><li><strong>Stand tall and still.</strong> A short calibration learns each player’s standing position.</li><li><strong>Follow the trail.</strong> Jump over logs, duck under arches, and step away from rocks. Every clear earns 100 points. Everyone plays the whole minute!</li></ol><p class="help-tip">Clear the floor and keep enough space to move without bumping into each other. Run in place if you like. The trail moves automatically.</p><h3>Playing with buttons?</h3><p>Avery uses W A S D. Cameron uses the arrow keys. Player 3 uses I J K L. Player 4 uses T F G H. Up jumps, down ducks, and left or right dodges. On a touch screen, choose a player above the buttons.</p><p>Camera tracking works best in good light with every player’s feet visible. Video is processed on this device.</p></dialog>
 <dialog id="install-help"><button class="dialog-close" id="close-install" aria-label="Close install help">×</button><p class="eyebrow">TAKE YOUR BLOBS WITH YOU</p><h2>A playground on your home screen.</h2><p>On iPhone or iPad, open this page in Safari, tap Share, then <strong>Add to Home Screen</strong>.</p><p>On Android or desktop, use your browser’s <strong>Install app</strong> or <strong>Add to Home Screen</strong> menu.</p><p id="install-offline">Keep the app open until “Ready for offline play” appears to save the game and camera model.</p></dialog>`;
 const renderer = new Renderer($("scene"));
+const cameraDiagnostics = new CameraDiagnostics();
+const cameraHelp = new CameraHelp(cameraDiagnostics, {
+  pause: () => pause(),
+  stop: stopCamera,
+  retry: () => {
+    stopCamera();
+    void connectCamera();
+  },
+});
+$("camera-help-open").onclick = () => cameraHelp.open();
 function persist() {
   try {
     localStorage.setItem("blob-players", JSON.stringify(players));
@@ -336,6 +352,10 @@ function onPoses(poses: Pose[]) {
   const visible = poses
     .filter(isVisible)
     .sort((a, b) => measure(a).x - measure(b).x);
+  cameraDiagnostics.update({
+    expectedPeople: active().length,
+    visiblePeople: visible.length,
+  });
   if (calibrating) {
     drawJoints(visible);
     if (visible.length !== active().length) {
@@ -450,14 +470,26 @@ async function connectCamera() {
   notice(
     "The first camera setup downloads the motion model. This can take a moment.",
   );
-  const currentTracker = new Tracker($("video"), onPoses, (message) => {
-    if (tracker !== currentTracker) return;
-    stopCamera();
-    notice(message);
-  });
+  // Keep the inline preview visible throughout Safari camera startup.
+  $("camera-preview").hidden = false;
+  $("camera-preview").scrollIntoView({ block: "nearest" });
+  $("tracking-label").textContent = "Starting camera…";
+  const currentTracker = new Tracker(
+    $("video"),
+    onPoses,
+    (error) => {
+      if (tracker !== currentTracker) return;
+      stopCamera();
+      cameraHelp.showFailure(error);
+      notice(
+        `${cameraAdvice(error.stage, error.name)} Open Camera help & diagnostics for details.`,
+      );
+    },
+    cameraDiagnostics,
+  );
   tracker = currentTracker;
   try {
-    await currentTracker.start();
+    await currentTracker.start(cameraHelp.settings);
     if (tracker !== currentTracker) return;
     mode = "camera";
     cameraLoading = false;
@@ -469,17 +501,13 @@ async function connectCamera() {
   } catch (error) {
     if (tracker !== currentTracker) return;
     stopCamera();
-    const name = error instanceof Error ? error.name : "";
+    const failure =
+      error instanceof CameraFailure
+        ? error
+        : new CameraFailure("permission", error);
+    cameraHelp.showFailure(failure);
     notice(
-      name === "NotAllowedError"
-        ? "Camera access was declined. Allow it in your browser’s site settings, or play with buttons."
-        : name === "NotFoundError"
-          ? "No camera found. Connect one or play with buttons."
-          : name === "NotReadableError"
-            ? "The camera is busy. Close other camera apps and try again."
-            : error instanceof Error
-              ? error.message
-              : "Could not start the camera. Try buttons to play.",
+      `${cameraAdvice(failure.stage, failure.name)} Open Camera help & diagnostics for details.`,
     );
   }
 }

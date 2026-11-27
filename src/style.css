@@ -1498,3 +1498,188 @@ dialog li {
     width: 150px;
   }
 }
+#camera-help {
+  max-width: 700px;
+  max-height: 90dvh;
+  overflow: auto;
+}
+#camera-help h2 {
+  margin-bottom: 12px;
+}
+.diagnostic-summary {
+  padding: 15px;
+  border-radius: 12px;
+  background: #ede5f4;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.diagnostic-steps {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.diagnostic-steps li {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+.diagnostic-steps strong {
+  color: var(--ink);
+}
+.diagnostic-steps span {
+  color: #776783;
+  overflow-wrap: anywhere;
+}
+.diagnostic-steps [data-state="failed"] {
+  color: #a23d35;
+}
+.diagnostic-steps [data-state="passed"] {
+  color: #3d754c;
+}
+.diagnostic-video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #352c40;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 15px 0;
+}
+.diagnostic-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.diagnostic-video span {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: #352c40bb;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+.diagnostic-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 18px;
+}
+.diagnostic-options label {
+  display: grid;
+  gap: 7px;
+  font-size: 14px;
+}
+.diagnostic-options select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cebedb;
+  border-radius: 8px;
+  background: white;
+  color: var(--ink);
+  font-size: 16px;
+}
+.diagnostic-options .diagnostic-checkbox {
+  grid-column: 1/-1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.diagnostic-checkbox input {
+  width: 22px;
+  height: 22px;
+  accent-color: #796590;
+}
+.diagnostic-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+.diagnostic-buttons button {
+  flex: 1 1 180px;
+  min-height: 46px;
+  font-size: 14px;
+}
+.diagnostic-button {
+  background: #eae1f0;
+  border: 1px solid #dacbe6;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-weight: 600;
+}
+.diagnostic-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-size: 14px;
+  gap: 10px;
+  padding: 15px;
+  background: #f1edf4;
+  border-radius: 12px;
+}
+.diagnostic-metrics dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+}
+#camera-help .diagnostic-caption {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 10px 0;
+  color: #82718d;
+}
+#camera-help details {
+  margin: 18px 0;
+}
+#camera-help summary {
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 0;
+}
+#camera-help details a {
+  text-decoration: underline;
+  font-size: 14px;
+}
+#camera-help label[for="camera-report"] {
+  display: block;
+  font-size: 13px;
+  margin: 8px 0;
+}
+#camera-report {
+  width: 100%;
+  font: 12px/1.5 monospace;
+  padding: 12px;
+  border: 1px solid #cdbed9;
+  border-radius: 8px;
+  background: #fff;
+  color: #3d3451;
+  resize: vertical;
+}
+#diagnostic-tool-status {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+#camera-help-open {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+#diagnostic-preview:has(video) {
+  scroll-margin: 20px;
+}
+@media (max-width: 500px) {
+  .diagnostic-options {
+    grid-template-columns: 1fr;
+  }
+  #camera-help {
+    padding: 30px 20px;
+  }
+  .diagnostic-metrics {
+    font-size: 13px;
+  }
+}

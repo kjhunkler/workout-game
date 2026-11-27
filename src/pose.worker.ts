@@ -4,7 +4,15 @@ let detector: PoseLandmarker | undefined;
 self.onmessage = async ({ data }) => {
   try {
     if (data.type === "init") {
+      self.postMessage({
+        type: "progress",
+        message: "Loading the camera WebAssembly runtime.",
+      });
       const files = await FilesetResolver.forVisionTasks(`${data.base}wasm`);
+      self.postMessage({
+        type: "progress",
+        message: "Loading the pose model and initializing tracking.",
+      });
       detector = await PoseLandmarker.createFromOptions(files, {
         baseOptions: {
           modelAssetPath: `${data.base}models/pose_landmarker_lite.task`,
@@ -19,8 +27,13 @@ self.onmessage = async ({ data }) => {
       self.postMessage({ type: "ready" });
     } else if (data.type === "frame") {
       try {
+        const started = performance.now();
         const result = detector?.detectForVideo(data.frame, data.time);
-        self.postMessage({ type: "poses", poses: result?.landmarks ?? [] });
+        self.postMessage({
+          type: "poses",
+          poses: result?.landmarks ?? [],
+          durationMs: performance.now() - started,
+        });
       } finally {
         data.frame.close();
       }
@@ -28,6 +41,7 @@ self.onmessage = async ({ data }) => {
   } catch (error) {
     self.postMessage({
       type: "error",
+      name: error instanceof Error ? error.name : "TrackingError",
       message:
         error instanceof Error ? error.message : "Tracking could not start.",
     });
