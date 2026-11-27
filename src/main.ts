@@ -179,6 +179,7 @@ function startRound() {
   }
   run = new Run(GAMES[0], active());
   run.onClear = playTone;
+  $("time").textContent = String(run.definition.duration);
   phase = "countdown";
   countdown = 3;
   pressed.clear();

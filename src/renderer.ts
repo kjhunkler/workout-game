@@ -247,26 +247,26 @@ export class Renderer {
       const pose = motion.joints,
         torso = Math.max(
           0.06,
-          (pose[23].y + pose[24].y - pose[11].y - pose[12].y) / 2,
+          (pose[23].y + pose[24].y - pose[12].y - pose[11].y) / 2,
         );
       left = {
         x: Math.max(
           -1.3,
-          Math.min(0.2, -0.38 - ((pose[16].x - pose[12].x) / torso) * 0.5),
+          Math.min(0.2, -0.38 - ((pose[15].x - pose[11].x) / torso) * 0.5),
         ),
         y: Math.max(
           -2,
-          Math.min(-0.15, -1.05 + ((pose[16].y - pose[12].y) / torso) * 0.55),
+          Math.min(-0.15, -1.05 + ((pose[15].y - pose[11].y) / torso) * 0.55),
         ),
       };
       right = {
         x: Math.max(
           -0.2,
-          Math.min(1.3, 0.38 - ((pose[15].x - pose[11].x) / torso) * 0.5),
+          Math.min(1.3, 0.38 - ((pose[16].x - pose[12].x) / torso) * 0.5),
         ),
         y: Math.max(
           -2,
-          Math.min(-0.15, -1.05 + ((pose[15].y - pose[11].y) / torso) * 0.55),
+          Math.min(-0.15, -1.05 + ((pose[16].y - pose[12].y) / torso) * 0.55),
         ),
       };
     } else if (jump) {
