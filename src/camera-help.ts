@@ -52,7 +52,7 @@ export class CameraHelp {
             `<li><strong>${label}</strong><span id="diagnostic-${stage}">Waiting</span></li>`,
         )
         .join("")}</ol>
-      <div class="diagnostic-video" id="diagnostic-preview" hidden><video id="diagnostic-video" autoplay muted playsinline aria-label="Camera test preview"></video><span>Live camera test</span></div>
+      <div class="diagnostic-video" id="diagnostic-preview" hidden><video id="diagnostic-camera-video" autoplay muted playsinline aria-label="Camera test preview"></video><span>Live camera test</span></div>
       <div class="diagnostic-options"><label>Camera<select id="diagnostic-facing"><option value="user">Front camera</option><option value="environment">Rear camera</option></select></label><label>Tracking mode<select id="diagnostic-engine"><option value="worker">Background worker</option><option value="compatible">Compatibility mode</option></select></label><label class="diagnostic-checkbox"><input type="checkbox" id="diagnostic-low"> Lower camera resolution</label></div>
       <p class="diagnostic-caption">Compatibility mode uses a different tracking path and may run more slowly. These settings apply to your next camera attempt.</p>
       <div class="diagnostic-buttons"><button id="test-camera" class="primary-button">Test camera only</button><button id="retry-tracking" class="diagnostic-button">Try joint tracking</button><button id="stop-test" class="diagnostic-button">Stop camera</button></div>
@@ -225,7 +225,7 @@ export class CameraHelp {
       "Allow camera access if prompted. Watch for a moving picture below.",
     );
     const tracker = new Tracker(
-      $("diagnostic-video"),
+      $("diagnostic-camera-video"),
       () => {},
       (error) => {
         if (this.testTracker === tracker) {
