@@ -1,6 +1,26 @@
 # Blob Club
 
-An installable, shared-camera playground for Avery, Cameron, and friends. Avery starts blue and Cameron green. Up to four people choose their own blob colors and play together on one device.
+An installable, shared-camera playground for Avery, Cameron, and friends. Avery starts blue and Cameron green. Players share one camera; the drop-in games support up to 12 simultaneous detected poses, while Trail Dash has four configured player slots.
+
+## Moonlight Reef — startup default
+
+A wordless, cooperative underwater playground. Sweep your hands through glowing
+pearls and spread your arms to draw nearby pearls inward. Every four pearls
+lights a coral garden; all six gardens summon a friendly giant whale. Another
+reef begins after the celebration. There is no timer, failure, or player roster.
+
+Tap the camera icon for upper-body tracking (shoulders and wrists; no feet or
+calibration needed). People can enter and leave without pausing. Camera errors
+open the adult-facing help dialog. Video stays on the device.
+
+Mouse movement or a finger drag moves a jellyfish; hold to create a current.
+Arrow keys/WASD move and Space creates a current. The four-square icon opens an
+illustrated picker for Reef, Space Rollercoaster, and Trail Dash. Sound is opt-in.
+The game fills the viewport immediately; browser fullscreen requires a gesture.
+
+See [the design plan](docs/reef-design.md) for theme, goal, interaction, feedback,
+tracking behavior, and validation. New modules separate upper-body association
+(`src/upper-body.ts`), rules (`src/reef-game.ts`), and canvas art (`src/reef.ts`).
 
 ## Trail Dash
 
@@ -42,7 +62,7 @@ The build copies MediaPipe's WASM runtime and creates a versioned service worker
 
 ## Structure
 
-- `src/tracker.ts` and `src/pose.worker.ts` acquire video and run MediaPipe Pose Landmarker locally in a worker, with up to four poses.
+- `src/tracker.ts` and `src/pose.worker.ts` acquire video and run MediaPipe Pose Landmarker locally in a worker, with up to 12 poses.
 - `src/motion.ts` handles player matching, personal calibration measurements, and gesture interpretation.
 - `src/types.ts` holds the game registry and shared motion types.
 - `src/game.ts` runs Trail Dash timing, obstacles, and independent player scores.
@@ -60,13 +80,15 @@ Push completed changes directly to `main`, following `AGENTS.md`. `.github/workf
 
 The bundled `public/models/pose_landmarker_lite.task` is Google's MediaPipe Pose Landmarker Lite model, float16 version 1, downloaded from https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task. MediaPipe Tasks Vision and the model are provided under Apache-2.0. The dependency includes its license. See https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker for model documentation. Fonts are Outfit and DM Sans, distributed by Fontsource with their SIL Open Font Licenses.
 
-Space Rollercoaster opens immediately and fills the viewport. Tap 📷 to enable
+## Space Rollercoaster
+
+Space Rollercoaster is available in the illustrated game picker and fills the viewport. Tap 📷 to enable
 local camera tracking, or hold on the scene to aim and charge (Space fires upward
 with a keyboard). Hold either arm straight for one second: the ring fills, then a
 laser fires along the dotted aim line. It repeats while held. Shoulders, elbows,
 and wrists must be visible; legs are not required. Walk in or out without a
 roster or calibration. The detector is configured for up to 12 simultaneous
 poses; lighting, occlusion, and device speed affect the practical limit.
-The menu switches to Trail Dash setup and back to space. True browser fullscreen
+The picker switches between Reef, Space, and Trail Dash setup. True browser fullscreen
 requires a user gesture and is requested on the first tap; viewport filling is
 immediate. Camera permission still requires approval by the browser.

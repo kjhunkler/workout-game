@@ -1684,14 +1684,262 @@ dialog li {
   }
 }
 /* Games occupy the viewport; the menu exposes setup and other adventures. */
-body.immersive {margin:0;overflow:hidden;background:#020411}
-.immersive .game-stage {position:fixed;inset:0;width:100vw;height:100dvh;max-height:none;border:0;border-radius:0;z-index:10}
-.immersive #scene {width:100%;height:100%;touch-action:none}
-.immersive .stage-top,.immersive .scene-intro,.immersive .scene-sticker,.immersive .scene-bottom,.immersive .hud,.immersive .cue {display:none!important}
-.space-tools {position:fixed;right:18px;top:18px;display:flex;gap:10px;z-index:30}
-.space-tools button {background:#242345;color:white;border:1px solid #807ca8;border-radius:50%;width:48px;height:48px;font-size:24px;cursor:pointer}
-.immersive .camera-preview {bottom:18px;right:18px;opacity:.8}
-body:not(.immersive) .game-stage {min-height:70vh}
-.trail-playing .game-stage {position:fixed;inset:0;width:100vw;height:100dvh;max-height:none;border-radius:0;z-index:10}
-.trail-playing .touch-controls {position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:20}
-.trail-playing .space-tools {display:none}
+body.immersive {
+  margin: 0;
+  overflow: hidden;
+  background: #020411;
+}
+.immersive .game-stage {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  z-index: 10;
+}
+.immersive #scene {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+.immersive .stage-top,
+.immersive .scene-intro,
+.immersive .scene-sticker,
+.immersive .scene-bottom,
+.immersive .hud,
+.immersive .cue {
+  display: none !important;
+}
+.space-tools {
+  position: fixed;
+  right: 18px;
+  top: 18px;
+  display: flex;
+  gap: 10px;
+  z-index: 30;
+}
+.space-tools button {
+  background: #242345;
+  color: white;
+  border: 1px solid #807ca8;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  cursor: pointer;
+}
+.immersive .camera-preview {
+  bottom: 18px;
+  right: 18px;
+  opacity: 0.8;
+}
+body:not(.immersive) .game-stage {
+  min-height: 70vh;
+}
+.trail-playing .game-stage {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-height: none;
+  border-radius: 0;
+  z-index: 10;
+}
+.trail-playing .touch-controls {
+  position: fixed;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+.trail-playing .space-tools {
+  display: none;
+}
+/* Moonlight Reef: all player-facing guidance is pictorial. */
+.reef-game .space-tools {
+  top: max(16px, env(safe-area-inset-top));
+  right: max(18px, env(safe-area-inset-right));
+  gap: 8px;
+}
+.space-tools button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: #102e40b8;
+  border: 1px solid #a4ead938;
+  color: #d5f5ed;
+  backdrop-filter: blur(14px);
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+.space-tools button svg {
+  width: 21px;
+  height: 21px;
+}
+.space-tools button:hover {
+  background: #245568;
+  transform: translateY(-2px);
+}
+.space-tools button:focus-visible,
+#adventure-picker button:focus-visible {
+  outline: 3px solid #fff0ae;
+  outline-offset: 5px;
+}
+#space-camera {
+  position: relative;
+}
+#space-camera i {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8ba8ad;
+}
+#space-camera[aria-pressed="true"] {
+  border-color: #92f0b8;
+  background: #205449;
+}
+#space-camera[aria-pressed="true"] i {
+  background: #adffba;
+  box-shadow: 0 0 8px #89ffb9;
+}
+#space-camera.connecting {
+  animation: camera-breathe 1s infinite alternate;
+}
+@keyframes camera-breathe {
+  to {
+    border-color: #fff0ae;
+    background: #5b654d;
+  }
+}
+.reef-game .camera-preview {
+  width: 140px;
+  height: 80px;
+  border: 1px solid #b5ebd84d;
+  border-radius: 16px;
+  bottom: 18px;
+  right: 18px;
+  opacity: 0.7;
+}
+.reef-game #tracking-label {
+  display: none;
+}
+.reef-game #notice {
+  display: none;
+}
+.reef-game #camera-stop {
+  background: #0c283e;
+  color: #defff2;
+}
+#adventure-picker {
+  width: min(640px, 90vw);
+  padding: 64px 26px 30px;
+  border: 1px solid #8edbc65c;
+  border-radius: 30px;
+  background: linear-gradient(140deg, #163e51, #0e192f);
+  box-shadow: 0 24px 100px #0008;
+  color: #d5fff1;
+}
+#adventure-picker::backdrop {
+  background: #02151ac7;
+  backdrop-filter: blur(10px);
+}
+.picker-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  background: transparent;
+  color: #c8e4df;
+  border: 0;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+.picker-close svg {
+  width: 24px;
+  height: 24px;
+}
+.adventure-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.adventure-cards button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1/1.15;
+  border: 1px solid #afecd74d;
+  border-radius: 22px;
+  background: radial-gradient(ellipse at 50% 30%, #3c8585, #173549);
+  color: #afffe3;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.adventure-cards button:nth-child(2) {
+  background: radial-gradient(ellipse at 50% 30%, #514b83, #202440);
+  color: #d2c4ff;
+}
+.adventure-cards button:nth-child(3) {
+  background: radial-gradient(ellipse at 50% 30%, #598a76, #263d47);
+  color: #d2f5b4;
+}
+.adventure-cards button:hover {
+  transform: translateY(-5px);
+}
+.adventure-cards button[aria-pressed="true"] {
+  outline: 3px solid #d8ffe6;
+  outline-offset: 4px;
+}
+.adventure-cards svg {
+  width: 55%;
+  height: 55%;
+  filter: drop-shadow(0 0 12px #a4ffdf55);
+  stroke-width: 1;
+}
+.adventure-cards span {
+  position: absolute;
+  bottom: 7px;
+  font-size: 18px;
+  opacity: 0;
+}
+.adventure-cards button[aria-pressed="true"] span {
+  opacity: 1;
+}
+@media (max-width: 600px) {
+  .space-tools {
+    gap: 6px;
+  }
+  .space-tools button {
+    width: 38px;
+    height: 38px;
+  }
+  .adventure-cards {
+    gap: 12px;
+  }
+  #adventure-picker {
+    padding: 60px 18px 26px;
+  }
+  .adventure-cards button {
+    border-radius: 14px;
+  }
+  .reef-game .camera-preview {
+    width: 110px;
+    height: 65px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .space-tools button,
+  .adventure-cards button {
+    transition: none;
+  }
+  #space-camera.connecting {
+    animation: none;
+  }
+}

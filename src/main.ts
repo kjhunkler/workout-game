@@ -1,3 +1,4 @@
+import { MoonlightReef } from "./reef";
 import { SpaceRide } from "./space";
 import "@fontsource/outfit/latin-600.css";
 import "@fontsource/outfit/latin-700.css";
@@ -106,23 +107,186 @@ $("app").innerHTML = `
 </main>
 <dialog id="help"><button class="dialog-close" id="close-help" aria-label="Close instructions">×</button><p class="eyebrow">WELCOME TO THE CLUB</p><h2>Make a little room.<br>Make some big moves.</h2><p>Choose your players and colors, then connect your camera. Stand side by side with your whole body visible and a little space around you.</p><ol><li><strong>Find your spot.</strong> The crew is assigned from left to right in the mirrored camera preview. Stay in that order.</li><li><strong>Stand tall and still.</strong> A short calibration learns each player’s standing position.</li><li><strong>Follow the trail.</strong> Jump over logs, duck under arches, and step away from rocks. Every clear earns 100 points. Everyone plays the whole minute!</li></ol><p class="help-tip">Clear the floor and keep enough space to move without bumping into each other. Run in place if you like. The trail moves automatically.</p><h3>Playing with buttons?</h3><p>Avery uses W A S D. Cameron uses the arrow keys. Player 3 uses I J K L. Player 4 uses T F G H. Up jumps, down ducks, and left or right dodges. On a touch screen, choose a player above the buttons.</p><p>Camera tracking works best in good light with every player’s feet visible. Video is processed on this device.</p></dialog>
 <dialog id="install-help"><button class="dialog-close" id="close-install" aria-label="Close install help">×</button><p class="eyebrow">TAKE YOUR BLOBS WITH YOU</p><h2>A playground on your home screen.</h2><p>On iPhone or iPad, open this page in Safari, tap Share, then <strong>Add to Home Screen</strong>.</p><p>On Android or desktop, use your browser’s <strong>Install app</strong> or <strong>Add to Home Screen</strong> menu.</p><p id="install-offline">Keep the app open until “Ready for offline play” appears to save the game and camera model.</p></dialog>`;
-let space = true;
+type Adventure = "reef" | "space" | "trail";
+let adventure: Adventure = "reef";
+const immersive = () => adventure !== "trail";
 const ride = new SpaceRide($("scene"));
-document.body.classList.add('immersive');
-const spaceTools = document.createElement('div');
-spaceTools.className='space-tools';
-spaceTools.innerHTML='<button id="space-camera" aria-label="Connect camera">📷</button><button id="space-menu" aria-label="Choose game">☰</button><button id="space-full" aria-label="Fullscreen">⛶</button>';
+const reef = new MoonlightReef($("scene"));
+reef.game.onCollect = playTone;
+const icon = (body: string) =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+const cameraIcon = icon(
+  '<rect x="3" y="6" width="13" height="12" rx="3"/><path d="m16 10 5-3v10l-5-3"/><circle cx="9.5" cy="12" r="2.5"/>',
+);
+const reefIcon = icon(
+  '<path d="M4 13C2 1 22 1 20 13Q16 16 12 13Q8 16 4 13Z"/><path d="M7 15q-3 4 0 7m5-7q-3 4 0 7m5-7q-3 4 0 7"/><path d="M9 9h.01M15 9h.01"/>',
+);
+const rocketIcon = icon(
+  '<path d="M8 16C5 10 11 3 21 3c0 10-7 16-13 13ZM8 10 3 12v5l5-1m6 0-2 5H7l1-5M5 19l-2 2"/><circle cx="15" cy="9" r="2"/>',
+);
+const trailIcon = icon(
+  '<path d="m2 18 7-12 6 12m-5 0 6-10 6 10M3 22h18M7 9l2 3 2-3"/>',
+);
+const spaceTools = document.createElement("div");
+spaceTools.className = "space-tools";
+spaceTools.innerHTML = `<button id="space-camera" aria-label="Connect camera" aria-pressed="false">${cameraIcon}<i></i></button><button id="ocean-sound" aria-label="Turn sound on" aria-pressed="false">${icon('<path d="m11 5-6 4H2v6h3l6 4Zm5 4 5 6m0-6-5 6"/>')}</button><button id="space-menu" aria-label="Choose game" aria-expanded="false">${icon('<rect x="3" y="3" width="6" height="6" rx="2"/><rect x="15" y="3" width="6" height="6" rx="2"/><rect x="3" y="15" width="6" height="6" rx="2"/><rect x="15" y="15" width="6" height="6" rx="2"/>')}</button><button id="space-full" aria-label="Toggle fullscreen">${icon('<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>')}</button>`;
 document.body.append(spaceTools);
-$("space-camera").onclick=()=>{phase='lobby';void connectCamera();};
-$("space-menu").onclick=()=>{space=!space;document.body.classList.toggle('immersive',space);if(!space)backToLobby();else {$("overlay").hidden=true;hideIntro();}};
-$("space-full").onclick=()=>void document.documentElement.requestFullscreen?.().catch(()=>{});
-document.addEventListener('pointerdown',()=>{if(space)void document.documentElement.requestFullscreen?.().catch(()=>{});},{once:true});
-const scene=$<HTMLCanvasElement>('scene');
-scene.addEventListener('pointerdown',e=>{if(space){scene.setPointerCapture(e.pointerId);ride.pointer={x:e.offsetX/scene.clientWidth,y:e.offsetY/scene.clientHeight};}});
-scene.addEventListener('pointermove',e=>{if(ride.pointer)ride.pointer={x:e.offsetX/scene.clientWidth,y:e.offsetY/scene.clientHeight};});
-for(const event of ['pointerup','pointercancel'])scene.addEventListener(event,()=>ride.pointer=undefined);
-window.addEventListener('keydown',e=>{if(space && e.code==='Space'){e.preventDefault();ride.pointer={x:.5,y:.15};}});
-window.addEventListener('keyup',e=>{if(e.code==='Space')ride.pointer=undefined;});
+const picker = document.createElement("dialog");
+picker.id = "adventure-picker";
+picker.setAttribute("aria-label", "Choose an adventure");
+picker.innerHTML = `<button id="close-picker" class="picker-close" aria-label="Close game picker">${icon('<path d="m6 6 12 12M18 6 6 18"/>')}</button><div class="adventure-cards"><button data-adventure="reef" aria-label="Moonlight Reef" aria-pressed="true">${reefIcon}<span aria-hidden="true">✦</span></button><button data-adventure="space" aria-label="Space Rollercoaster" aria-pressed="false">${rocketIcon}<span aria-hidden="true">✦</span></button><button data-adventure="trail" aria-label="Trail Dash" aria-pressed="false">${trailIcon}<span aria-hidden="true">✦</span></button></div>`;
+document.body.append(picker);
+function resetAdventureInput() {
+  reef.clearInput();
+  ride.pointer = undefined;
+  pressed.clear();
+  touchPressed.clear();
+}
+function selectAdventure(next: Adventure) {
+  resetAdventureInput();
+  backToLobby();
+  adventure = next;
+  resetCalibration();
+  document.body.classList.toggle("immersive", immersive());
+  document.body.classList.toggle("reef-game", next === "reef");
+  $("scene").setAttribute(
+    "aria-label",
+    next === "reef"
+      ? "Moonlight Reef: move your hands to gather pearls; spread your arms to pull pearls closer. Arrow keys or touch also work."
+      : next === "space"
+        ? "Space Rollercoaster"
+        : "Trail Dash",
+  );
+  if (immersive()) {
+    hideIntro();
+    $("overlay").hidden = true;
+  } else if (tracker) calibrate();
+  picker
+    .querySelectorAll<HTMLButtonElement>("[data-adventure]")
+    .forEach((b) =>
+      b.setAttribute("aria-pressed", String(b.dataset.adventure === next)),
+    );
+  picker.close();
+}
+$("space-camera").onclick = () => {
+  resetAdventureInput();
+  if (tracker || cameraLoading) stopCamera();
+  else {
+    phase = "lobby";
+    void connectCamera();
+  }
+};
+$("ocean-sound").onclick = () => {
+  sound = !sound;
+  $("ocean-sound").setAttribute("aria-pressed", String(sound));
+  $("ocean-sound").setAttribute(
+    "aria-label",
+    sound ? "Turn sound off" : "Turn sound on",
+  );
+  $("ocean-sound").innerHTML = icon(
+    sound
+      ? '<path d="m11 5-6 4H2v6h3l6 4Zm5 3q5 4 0 8m3-11q8 7 0 14"/>'
+      : '<path d="m11 5-6 4H2v6h3l6 4Zm5 4 5 6m0-6-5 6"/>',
+  );
+  if (sound) playTone();
+};
+$("space-menu").onclick = () => {
+  resetAdventureInput();
+  pause();
+  picker.showModal();
+  $("space-menu").setAttribute("aria-expanded", "true");
+};
+$("close-picker").onclick = () => picker.close();
+picker.addEventListener("close", () =>
+  $("space-menu").setAttribute("aria-expanded", "false"),
+);
+picker
+  .querySelectorAll<HTMLButtonElement>("[data-adventure]")
+  .forEach(
+    (b) =>
+      (b.onclick = () => selectAdventure(b.dataset.adventure as Adventure)),
+  );
+$("space-full").onclick = () => {
+  if (document.fullscreenElement) void document.exitFullscreen();
+  else void document.documentElement.requestFullscreen?.().catch(() => {});
+};
+document.addEventListener(
+  "pointerdown",
+  () => {
+    if (immersive())
+      void document.documentElement.requestFullscreen?.().catch(() => {});
+  },
+  { once: true },
+);
+const scene = $<HTMLCanvasElement>("scene");
+const pointerPoint = (e: PointerEvent) => {
+  const r = scene.getBoundingClientRect();
+  return {
+    x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)),
+    y: Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)),
+  };
+};
+scene.addEventListener("pointerdown", (e) => {
+  if (!immersive()) return;
+  scene.setPointerCapture(e.pointerId);
+  if (adventure === "reef") {
+    reef.pointer = pointerPoint(e);
+    reef.held = true;
+  } else ride.pointer = pointerPoint(e);
+});
+scene.addEventListener("pointermove", (e) => {
+  if (adventure === "reef" && (e.pointerType === "mouse" || reef.held))
+    reef.pointer = pointerPoint(e);
+  if (adventure === "space" && ride.pointer) ride.pointer = pointerPoint(e);
+});
+for (const event of ["pointerup", "pointercancel"])
+  scene.addEventListener(event, () => {
+    ride.pointer = undefined;
+    reef.held = false;
+  });
+scene.addEventListener("pointerleave", () => {
+  if (!reef.held) reef.pointer = undefined;
+});
+window.addEventListener("keydown", (e) => {
+  if (
+    document.querySelector("dialog[open]") ||
+    e.target instanceof HTMLInputElement ||
+    e.target instanceof HTMLSelectElement ||
+    e.target instanceof HTMLButtonElement
+  )
+    return;
+  const key = e.key.toLowerCase();
+  if (
+    adventure === "reef" &&
+    [
+      "arrowleft",
+      "arrowright",
+      "arrowup",
+      "arrowdown",
+      "w",
+      "a",
+      "s",
+      "d",
+      " ",
+    ].includes(key)
+  ) {
+    e.preventDefault();
+    reef.pointer = undefined;
+    reef.keys.add(key);
+  }
+  if (adventure === "space" && e.code === "Space") {
+    e.preventDefault();
+    ride.pointer = { x: 0.5, y: 0.15 };
+  }
+});
+window.addEventListener("keyup", (e) => {
+  reef.keys.delete(e.key.toLowerCase());
+  if (e.code === "Space") ride.pointer = undefined;
+});
+window.addEventListener("blur", resetAdventureInput);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) resetAdventureInput();
+});
 const renderer = new Renderer($("scene"));
 const cameraDiagnostics = new CameraDiagnostics();
 const cameraHelp = new CameraHelp(cameraDiagnostics, {
@@ -281,7 +445,7 @@ function backToLobby() {
   $("sticker").hidden = false;
   $("scene-bottom").hidden = false;
   renderPlayers();
-  if (mode === "camera") {
+  if (mode === "camera" && !immersive()) {
     resetCalibration();
     calibrating = true;
     cameraLabel(
@@ -312,6 +476,12 @@ function finish() {
 }
 function stopCamera() {
   tracker?.stop();
+  reef.tracking.clear();
+  ride.accept([]);
+  resetAdventureInput();
+  $("space-camera").classList.remove("connecting");
+  $("space-camera").setAttribute("aria-pressed", "false");
+  $("space-camera").setAttribute("aria-label", "Connect camera");
   tracker = undefined;
   mode = "buttons";
   cameraLoading = false;
@@ -369,7 +539,13 @@ function drawJoints(poses: Pose[]) {
 }
 function onPoses(poses: Pose[]) {
   lastPoseAt = performance.now();
-  if(space){ride.accept(poses);drawJoints(poses);return;}
+  if (immersive()) {
+    if (adventure === "reef") reef.accept(poses);
+    else ride.accept(poses);
+    drawJoints(poses);
+    cameraDiagnostics.update({ visiblePeople: poses.length });
+    return;
+  }
   const visible = poses
     .filter(isVisible)
     .sort((a, b) => measure(a).x - measure(b).x);
@@ -459,7 +635,13 @@ function onPoses(poses: Pose[]) {
   }
 }
 function calibrate() {
-  if(space){calibrated=false;calibrating=false;$("overlay").hidden=true;hideIntro();return;}
+  if (immersive()) {
+    calibrated = false;
+    calibrating = false;
+    $("overlay").hidden = true;
+    hideIntro();
+    return;
+  }
   resetCalibration();
   calibrating = true;
   hideIntro();
@@ -483,6 +665,8 @@ async function connectCamera() {
     return;
   }
   cameraLoading = true;
+  $("space-camera").classList.add("connecting");
+  $("space-camera").setAttribute("aria-label", "Cancel camera startup");
   ($("camera") as HTMLButtonElement).disabled = true;
   $("camera").textContent = "Connecting…";
   cameraLabel(
@@ -503,6 +687,7 @@ async function connectCamera() {
       if (tracker !== currentTracker) return;
       stopCamera();
       cameraHelp.showFailure(error);
+      if (immersive()) cameraHelp.open();
       notice(
         `${cameraAdvice(error.stage, error.name)} Open Camera help & diagnostics for details.`,
       );
@@ -514,11 +699,18 @@ async function connectCamera() {
     await currentTracker.start(cameraHelp.settings);
     if (tracker !== currentTracker) return;
     mode = "camera";
+    $("space-camera").classList.remove("connecting");
+    $("space-camera").setAttribute("aria-pressed", "true");
+    $("space-camera").setAttribute("aria-label", "Turn camera off");
     cameraLoading = false;
     $("camera-preview").hidden = false;
     ($("camera") as HTMLButtonElement).disabled = false;
     $("camera").textContent = "Find our spots again";
-    notice("Camera connected. Stand side by side and keep your feet in view.");
+    notice(
+      immersive()
+        ? "Camera connected. Move your hands to play."
+        : "Camera connected. Stand side by side and keep your feet in view.",
+    );
     calibrate();
   } catch (error) {
     if (tracker !== currentTracker) return;
@@ -528,6 +720,7 @@ async function connectCamera() {
         ? error
         : new CameraFailure("permission", error);
     cameraHelp.showFailure(failure);
+    if (immersive()) cameraHelp.open();
     notice(
       `${cameraAdvice(failure.stage, failure.name)} Open Camera help & diagnostics for details.`,
     );
@@ -721,11 +914,24 @@ function frame(now: number) {
     }
     if (run.finished) finish();
   }
-  if(space) ride.draw(delta, players.map(p=>p.color));
+  const adventurePaused =
+    document.hidden || !!document.querySelector("dialog[open]");
+  if (adventure === "reef")
+    reef.draw(
+      adventurePaused ? 0 : delta,
+      players.map((p) => p.color),
+      adventurePaused,
+    );
+  else if (adventure === "space")
+    ride.draw(
+      adventurePaused ? 0 : delta,
+      players.map((p) => p.color),
+    );
   else renderer.draw(active(), motions, now / 1000, run);
   requestAnimationFrame(frame);
 }
 renderPlayers();
+selectAdventure("reef");
 requestAnimationFrame(frame);
 
 interface InstallPrompt extends Event {
